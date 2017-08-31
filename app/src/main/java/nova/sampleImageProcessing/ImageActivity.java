@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.FileNotFoundException;
@@ -22,7 +23,7 @@ Bitmap bm;
         Intent intent = getIntent();
 
         Uri uri=Uri.parse(intent.getStringExtra("imageUri"));
-
+        Log.v("urilog2323", uri.toString());
         ImageView imgView = (ImageView)findViewById(R.id.bigImage);
 
         try {
