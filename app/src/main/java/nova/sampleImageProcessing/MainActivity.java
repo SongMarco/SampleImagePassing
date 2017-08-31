@@ -30,16 +30,8 @@ public class MainActivity extends AppCompatActivity {
         Button btnSelect = (Button)findViewById(R.id.buttonSaveImage);
         btnSelect.setOnClickListener(new ImageButton.OnClickListener(){
             public void onClick(View v){
-                FileOutputStream out = null;
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.god2);
-                try{
-                    out=new FileOutputStream(Environment.getExternalStorageDirectory().getPath()+"/tempImage.jpg");
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
-                }
-                catch(FileNotFoundException e)
-                {
-                    e.printStackTrace();
-                }
+                saveImage();
+
             }
         });
     }
@@ -47,10 +39,10 @@ public class MainActivity extends AppCompatActivity {
     public void buttonGoClicked(View v){
         Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
 
+        // 파일로부터 uri를 불러온다.
 
-      //  imageUri = Uri.parse(fileName);
+        imageUri = getUri();
 
-        imageUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/tempImage.jpg"));
         Log.v("urilog", imageUri.toString());
 
         //Toast.makeText(getApplicationContext(), imageUri.toString(), Toast.LENGTH_SHORT).show();
@@ -61,7 +53,25 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void saveImage(){
 
+        FileOutputStream fOutStream = null;
+
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.god2);
+        try{
+            fOutStream=new FileOutputStream(Environment.getExternalStorageDirectory().getPath()+"/tempImage.jpg");
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOutStream);
+        }
+        catch(FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public Uri getUri(){
+        return Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/tempImage.jpg"));
+    }
 
 
 }
