@@ -28,6 +28,20 @@ import static nova.sampleImageProcessing.BasicInfo.CROP_FROM_IMAGE;
 import static nova.sampleImageProcessing.BasicInfo.PICK_FROM_ALBUM;
 import static nova.sampleImageProcessing.BasicInfo.PICK_FROM_CAMERA;
 
+
+
+
+
+
+//////////////이미지 프로세싱 연습을 위한 코드
+///1.  이미지를 갤러리 / 사진을 찍고 잘라서 가져온다.
+///2. 다른 액티비티로 uri를 보내 사진을 가져올 수 있게 해준다.
+
+
+
+
+
+
 public class MainActivity extends AppCompatActivity {
 
     Uri imageUri;
@@ -62,8 +76,6 @@ public class MainActivity extends AppCompatActivity {
                 // crop Uri를 실어서 보내준다. 아무것도 싣지 않았다면 리소스를 실어 보내준다.
 
                 //Toast.makeText(getApplicationContext(), imageUri.toString(), Toast.LENGTH_SHORT).show();
-
-
 
                     intent.putExtra("imageUri", cropImageUri.toString());
 
@@ -230,12 +242,14 @@ public class MainActivity extends AppCompatActivity {
 
         FileOutputStream fOutStream = null;
 
+        String resDrawableUri = "android.resource://"+getApplicationContext().getPackageName()+"/drawable/basicimage";
+
 
         Bitmap bitmap = null;
         try {
             if(cropImageUri == null){
 
-                cropImageUri =  Uri.parse("android.resource://"+getApplicationContext().getPackageName()+"/drawable/basicimage") ;
+                cropImageUri =  Uri.parse(resDrawableUri) ;
             }
 
             Log.v("logForCropUri", "cropUri = "+cropImageUri.toString());
@@ -248,9 +262,9 @@ public class MainActivity extends AppCompatActivity {
 
         try{
 
-            if(cropImageUri.equals(Uri.parse("android.resource://"+getApplicationContext().getPackageName()+"/drawable/basicimage") ) )
+            if(cropImageUri.equals(Uri.parse(resDrawableUri) ) )
             {
-                fOutStream=new FileOutputStream("android.resource://"+getApplicationContext().getPackageName()+"/drawable/basicimage");
+                fOutStream=new FileOutputStream(resDrawableUri);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOutStream);
 
 
