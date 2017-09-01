@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         imageUri = getUri();
 
         Log.v("urilog", imageUri.toString());
-
+//주석 테스트
         //Toast.makeText(getApplicationContext(), imageUri.toString(), Toast.LENGTH_SHORT).show();
 
 
