@@ -1,8 +1,10 @@
 package nova.sampleImageProcessing;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -30,17 +33,22 @@ public class MainActivity extends AppCompatActivity {
     Uri imageUri;
 
     private Uri mImageCaptureUri;
-    private ImageView iv_User_Photo;
+    private Uri cropImageUri;
+    private ImageView imageViewForAdd;
     private String absolutePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        clearMyPrefs();
+
         setContentView(R.layout.activity_main);
 
 
 
-        iv_User_Photo = (ImageView)this.findViewById(R.id.imageViewAdd);
+
+        imageViewForAdd = (ImageView)this.findViewById(R.id.imageViewAdd);
 
 
 
@@ -49,6 +57,23 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v){
                 saveImage();
 
+                Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
+
+                // crop Uri를 실어서 보내준다. 아무것도 싣지 않았다면 리소스를 실어 보내준다.
+
+                //Toast.makeText(getApplicationContext(), imageUri.toString(), Toast.LENGTH_SHORT).show();
+
+                if(cropImageUri == null){
+
+                    intent.putExtra("imageUri", Uri.parse("android.resource://your.package.name/" + R.drawable.god333)) ;
+                }
+                else{
+                    intent.putExtra("imageUri", cropImageUri.toString());
+                }
+
+                startActivity(intent);
+
+
             }
         });
     }
@@ -56,16 +81,18 @@ public class MainActivity extends AppCompatActivity {
     public void buttonGoClicked(View v){
         Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
 
-        // 파일로부터 uri를 불러온다.
-
-
-        Log.v("urilog", mImageCaptureUri.toString());
+        // crop Uri를 실어서 보내준다. 아무것도 싣지 않았다면 리소스를 실어 보내준다.
 
         //Toast.makeText(getApplicationContext(), imageUri.toString(), Toast.LENGTH_SHORT).show();
 
+        if(cropImageUri == null){
 
+            intent.putExtra("imageUri", Uri.parse("android.resource://your.package.name/" + R.drawable.god333)) ;
+        }
+        else{
+            intent.putExtra("imageUri", cropImageUri.toString());
+        }
 
-        intent.putExtra("imageUri", mImageCaptureUri.toString());
         startActivity(intent);
     }
 
@@ -167,11 +194,11 @@ public class MainActivity extends AppCompatActivity {
 
                 // CROP된 이미지를 저장하기 위한 FILE 경로
                 String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() +
-                        "/SmartWheel/" + System.currentTimeMillis() + ".jpg";
+                        "/TempCrop/" + System.currentTimeMillis() + ".jpg";
 
                 if (extras != null) {
                     Bitmap photo = extras.getParcelable("data"); // CROP된 BITMAP
-                    iv_User_Photo.setImageBitmap(photo); // 레이아웃의 이미지칸에 CROP된 BITMAP을 보여줌
+                    imageViewForAdd.setImageBitmap(photo); // 레이아웃의 이미지칸에 CROP된 BITMAP을 보여줌
 
                     storeCropImage(photo, filePath); // CROP된 이미지를 외부저장소, 앨범에 저장한다.
                     absolutePath = filePath;
@@ -184,12 +211,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void storeCropImage(Bitmap bitmap, String filePath) {
-        // SmartWheel 폴더를 생성하여 이미지를 저장하는 방식이다.
-        String dirPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/SmartWheel";
-        File directory_SmartWheel = new File(dirPath);
+        // tempCrop 폴더를 생성하여 이미지를 저장하는 방식이다.
+        String dirPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/tempCrop";
+        File temp_crop = new File(dirPath);
 
-        if(!directory_SmartWheel.exists()) // SmartWheel 디렉터리에 폴더가 없다면 (새로 이미지를 저장할 경우에 속한다.)
-            directory_SmartWheel.mkdir();
+        if(!temp_crop.exists()) // tempCrop 디렉터리에 폴더가 없다면 (새로 이미지를 저장할 경우에 속한다.)
+            temp_crop.mkdir();
 
         File copyFile = new File(filePath);
         BufferedOutputStream out = null;
@@ -198,7 +225,14 @@ public class MainActivity extends AppCompatActivity {
 
             copyFile.createNewFile();
             out = new BufferedOutputStream(new FileOutputStream(copyFile));
+
+
+            //////////////////////uri from file을 이용, 자른 이미지의 uri를 얻어옴
+            cropImageUri = Uri.fromFile(copyFile);
+            saveState();
+
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+
 
             // sendBroadcast를 통해 Crop된 사진을 앨범에 보이도록 갱신한다.
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
@@ -220,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = null;
         try {
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mImageCaptureUri);
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), cropImageUri);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -248,8 +282,83 @@ public class MainActivity extends AppCompatActivity {
         return Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/tempImage.jpg"));
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        saveState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        restoreState();
+    }
+
+    public void saveState(){
+
+        Toast.makeText(getApplicationContext(), "saveState Called", Toast.LENGTH_SHORT).show();
+
+        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+
+        if(cropImageUri!=null){
+            editor.putString("imageUri", cropImageUri.toString());
+
+            editor.commit();
+        }
+
+    }
+
+    public void restoreState(){
+        Toast.makeText(getApplicationContext(), "restorestate Called", Toast.LENGTH_SHORT).show();
+
+        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+
+        if ((pref != null) && (pref.contains("imageUri"))) {
+            String uriString = pref.getString("imageUri", "");
+
+            imageUri = Uri.parse(uriString);
+
+            setImgViewFromUri(imageViewForAdd, imageUri);
+        }
+    }
+
+
+
+    protected void clearMyPrefs() {
+        Toast.makeText(getApplicationContext(), "pref cleared", Toast.LENGTH_SHORT).show();
+
+        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.commit();
+    }
+
+    public void setImgViewFromUri(ImageView imgView, Uri uri){
+
+        Bitmap bm = null;
+        try {
+            bm = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            imgView.setImageBitmap(bm);
+
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        imgView.setImageBitmap(bm);
+
+    }
+
 
 }
+
+
+
 
 
 
