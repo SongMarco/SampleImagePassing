@@ -63,37 +63,16 @@ public class MainActivity extends AppCompatActivity {
 
                 //Toast.makeText(getApplicationContext(), imageUri.toString(), Toast.LENGTH_SHORT).show();
 
-                if(cropImageUri == null){
 
-                    intent.putExtra("imageUri", Uri.parse("android.resource://your.package.name/" + R.drawable.god333)) ;
-                }
-                else{
+
                     intent.putExtra("imageUri", cropImageUri.toString());
-                }
+
 
                 startActivity(intent);
 
 
             }
         });
-    }
-
-    public void buttonGoClicked(View v){
-        Intent intent = new Intent(getApplicationContext(), ImageActivity.class);
-
-        // crop Uri를 실어서 보내준다. 아무것도 싣지 않았다면 리소스를 실어 보내준다.
-
-        //Toast.makeText(getApplicationContext(), imageUri.toString(), Toast.LENGTH_SHORT).show();
-
-        if(cropImageUri == null){
-
-            intent.putExtra("imageUri", Uri.parse("android.resource://your.package.name/" + R.drawable.god333)) ;
-        }
-        else{
-            intent.putExtra("imageUri", cropImageUri.toString());
-        }
-
-        startActivity(intent);
     }
 
 
@@ -254,6 +233,13 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = null;
         try {
+            if(cropImageUri == null){
+
+                cropImageUri =  Uri.parse("android.resource://"+getApplicationContext().getPackageName()+"/drawable/basicimage") ;
+            }
+
+            Log.v("logForCropUri", "cropUri = "+cropImageUri.toString());
+
             bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), cropImageUri);
         } catch (IOException e) {
             e.printStackTrace();
@@ -261,8 +247,19 @@ public class MainActivity extends AppCompatActivity {
 
 
         try{
-            fOutStream=new FileOutputStream(Environment.getExternalStorageDirectory().getPath()+"/tempImage.jpg");
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOutStream);
+
+            if(cropImageUri.equals(Uri.parse("android.resource://"+getApplicationContext().getPackageName()+"/drawable/basicimage") ) )
+            {
+                fOutStream=new FileOutputStream("android.resource://"+getApplicationContext().getPackageName()+"/drawable/basicimage");
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOutStream);
+
+
+            }
+            else {
+                fOutStream=new FileOutputStream(Environment.getExternalStorageDirectory().getPath()+"/tempImage.jpg");
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOutStream);
+            }
+
         }
         catch(FileNotFoundException e)
         {
@@ -271,11 +268,15 @@ public class MainActivity extends AppCompatActivity {
 
 
         // 임시 파일 삭제
-        File f = new File(mImageCaptureUri.getPath());
-        if(f.exists())
-        {
-            f.delete();
+
+        if(mImageCaptureUri!=null){
+            File f = new File(mImageCaptureUri.getPath());
+            if(f.exists())
+            {
+                f.delete();
+            }
         }
+
     }
 
     public Uri getUri(){
