@@ -1,31 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:weightSum="1"
     tools:context="nova.sampleImageProcessing.MainActivity">
 
-    <Button
-        android:id="@+id/buttonGo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="buttonGoClicked"
-        android:text="goImageAct"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.697"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent" />
+    <ImageView
+        android:id="@+id/imageViewAdd"
+        android:layout_width="match_parent"
+        android:layout_height="363dp"
+        app:srcCompat="@mipmap/ic_launcher" />
 
-    <Button
-        android:id="@+id/buttonSaveImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SaveImage"
-        tools:layout_editor_absoluteY="323dp"
-        app:layout_constraintRight_toLeftOf="@+id/buttonGo"
-        android:layout_marginRight="65dp"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
-</android.support.constraint.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+
+            android:layout_weight="1"
+            android:onClick="onClickAddImageClicked"
+
+
+            android:text="addimage" />
+
+        <Button
+            android:id="@+id/buttonSaveImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+
+            android:layout_weight="1"
+
+
+            android:text="SaveImage" />
+
+        <Button
+            android:id="@+id/buttonGo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="buttonGoClicked"
+
+
+            android:text="goImageAct" />
+    </LinearLayout>
+
+</LinearLayout>
