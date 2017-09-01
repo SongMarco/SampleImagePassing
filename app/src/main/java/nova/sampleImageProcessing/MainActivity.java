@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -315,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(getApplicationContext(), "saveState Called", Toast.LENGTH_SHORT).show();
 
-        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = pref.edit();
 
         if(cropImageUri!=null){
@@ -329,14 +330,14 @@ public class MainActivity extends AppCompatActivity {
     public void restoreState(){
         Toast.makeText(getApplicationContext(), "restorestate Called", Toast.LENGTH_SHORT).show();
 
-        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         if ((pref != null) && (pref.contains("imageUri"))) {
             String uriString = pref.getString("imageUri", "");
 
             imageUri = Uri.parse(uriString);
 
-            setImgViewFromUri(imageViewForAdd, imageUri);
+            imageViewForAdd.setImageURI(imageUri);
         }
     }
 

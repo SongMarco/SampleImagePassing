@@ -19,6 +19,9 @@ public class ImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
 
+
+        // 인텐트로부터 uri를 추출, 이미지를 꺼낸다.
+
         Intent intent = getIntent();
 
         Uri uri=Uri.parse(intent.getStringExtra("imageUri"));
