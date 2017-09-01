@@ -1,8 +1,10 @@
 package nova.sampleImageProcessing;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -31,17 +34,21 @@ public class MainActivity extends AppCompatActivity {
 
     private Uri mImageCaptureUri;
     private Uri cropImageUri;
-    private ImageView iv_User_Photo;
+    private ImageView imageViewForAdd;
     private String absolutePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        clearMyPrefs();
+
         setContentView(R.layout.activity_main);
 
 
 
-        iv_User_Photo = (ImageView)this.findViewById(R.id.imageViewAdd);
+
+        imageViewForAdd = (ImageView)this.findViewById(R.id.imageViewAdd);
 
 
 
@@ -173,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (extras != null) {
                     Bitmap photo = extras.getParcelable("data"); // CROP된 BITMAP
-                    iv_User_Photo.setImageBitmap(photo); // 레이아웃의 이미지칸에 CROP된 BITMAP을 보여줌
+                    imageViewForAdd.setImageBitmap(photo); // 레이아웃의 이미지칸에 CROP된 BITMAP을 보여줌
 
                     storeCropImage(photo, filePath); // CROP된 이미지를 외부저장소, 앨범에 저장한다.
                     absolutePath = filePath;
@@ -204,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
 
             //////////////////////uri from file을 이용, 자른 이미지의 uri를 얻어옴
             cropImageUri = Uri.fromFile(copyFile);
+            saveState();
 
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 
@@ -256,8 +264,83 @@ public class MainActivity extends AppCompatActivity {
         return Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/tempImage.jpg"));
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        saveState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        restoreState();
+    }
+
+    public void saveState(){
+
+        Toast.makeText(getApplicationContext(), "saveState Called", Toast.LENGTH_SHORT).show();
+
+        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+
+        if(cropImageUri!=null){
+            editor.putString("imageUri", cropImageUri.toString());
+
+            editor.commit();
+        }
+
+    }
+
+    public void restoreState(){
+        Toast.makeText(getApplicationContext(), "restorestate Called", Toast.LENGTH_SHORT).show();
+
+        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+
+        if ((pref != null) && (pref.contains("imageUri"))) {
+            String uriString = pref.getString("imageUri", "");
+
+            imageUri = Uri.parse(uriString);
+
+            setImgViewFromUri(imageViewForAdd, imageUri);
+        }
+    }
+
+
+
+    protected void clearMyPrefs() {
+        Toast.makeText(getApplicationContext(), "pref cleared", Toast.LENGTH_SHORT).show();
+
+        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.commit();
+    }
+
+    public void setImgViewFromUri(ImageView imgView, Uri uri){
+
+        Bitmap bm = null;
+        try {
+            bm = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            imgView.setImageBitmap(bm);
+
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        imgView.setImageBitmap(bm);
+
+    }
+
 
 }
+
+
+
 
 
 
