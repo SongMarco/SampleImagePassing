@@ -69,10 +69,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public Uri getUri(){
-        return Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/tempImage.jpg"));
-    }
-
 
 }
 
