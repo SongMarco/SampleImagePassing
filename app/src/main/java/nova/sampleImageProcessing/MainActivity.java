@@ -66,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        Button btnSelect = (Button)findViewById(R.id.buttonSaveImage);
-        btnSelect.setOnClickListener(new ImageButton.OnClickListener(){
+        Button buttonSave = (Button)findViewById(R.id.buttonSaveImage);
+        buttonSave.setOnClickListener(new ImageButton.OnClickListener(){
             public void onClick(View v){
                 saveImage();
 
